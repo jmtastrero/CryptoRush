@@ -8,3 +8,5 @@ cryptocmd
 statsmodels
 scikit-learn
 plotly
+hydralit
+time
