@@ -33,6 +33,8 @@ st.markdown(
     unsafe_allow_html=True
 )
 
+image = Image.open('logo.png')
+st.image(image, width=500)
 
 
 
