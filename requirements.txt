@@ -5,3 +5,4 @@ pybase64
 matplotlib
 tensorflow-cpu
 cryptocmd
+statsmodels
