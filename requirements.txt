@@ -9,4 +9,4 @@ statsmodels
 scikit-learn
 plotly
 hydralit
-time
+times
