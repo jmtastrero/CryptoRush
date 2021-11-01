@@ -1,0 +1,7 @@
+streamlit
+numpy
+pandas
+base64
+matplotlib
+tensorflow
+cryptocmd
