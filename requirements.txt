@@ -3,5 +3,5 @@ numpy
 pandas
 pybase64
 matplotlib
-tensorflow
+tensorflow-cpu
 cryptocmd
