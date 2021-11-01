@@ -33,10 +33,6 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-image = Image.open('logo.png')
-st.image(image, width=500)
-
-
 
 selected_ticker = st.sidebar.selectbox("Choose type of Crypto (i.e. BTC, ETH, BNB, XRP)",options=["BTC", "ETH", "BNB", "XRP"] )
 

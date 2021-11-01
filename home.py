@@ -1,9 +1,8 @@
 import streamlit as st
 import base64
-#import pandas as pd
+import pandas as pd
 import hydralit_components as hc
 import streamlit.components.v1 as components
-
 from PIL import Image
 
 st.set_page_config(layout='wide',initial_sidebar_state='collapsed',)
@@ -54,7 +53,7 @@ if menu_id == 'Home':
         
         
         st.subheader("PRICES IN USD")
-        HtmlFile = open("pricesUSD.html", 'r', encoding='utf-8')
+        HtmlFile = open("widget.html", 'r', encoding='utf-8')
         source_code = HtmlFile.read() 
         print(source_code)
         components.html(source_code,height=210, scrolling=True) 
