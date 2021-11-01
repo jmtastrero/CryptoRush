@@ -321,7 +321,6 @@ if st.button("Predict"):
 
     rev_trend=T_Data.reindex(index=T_Data.index[::-1])
 
-
     print(rev_trend)
     st.subheader('Trend')
     st.line_chart(rev_trend)
