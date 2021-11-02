@@ -53,7 +53,7 @@ if menu_id == 'Home':
         
         
         st.subheader("PRICES IN USD")
-        HtmlFile = open("widget.html", 'r', encoding='utf-8')
+        HtmlFile = open("USD.html", 'r', encoding='utf-8')
         source_code = HtmlFile.read() 
         print(source_code)
         components.html(source_code,height=210, scrolling=True) 
@@ -61,7 +61,7 @@ if menu_id == 'Home':
         st.header("")
         
         st.subheader("PRICES IN PHP")
-        HtmlFile = open("yes.html", 'r', encoding='utf-8')
+        HtmlFile = open("PHP.html", 'r', encoding='utf-8')
         source_code = HtmlFile.read() 
         print(source_code)
         components.html(source_code,height=210, scrolling=True)
