@@ -329,5 +329,5 @@ analysis = data[['Close']].copy()
 #residual = decompose_result_mult.resid
 #decompose_result_mult.plot();
 
-st.line_chart(trend)
+#st.line_chart(trend)
 #st.line_chart(seasonal)
