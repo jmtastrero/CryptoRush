@@ -36,12 +36,16 @@ st.markdown(
 
 selected_ticker = st.sidebar.selectbox("Choose type of Crypto (i.e. BTC, ETH, BNB, XRP)",options=["BTC", "ETH", "BNB", "XRP"] )
 
+
 # INITIALIZE SCRAPER
 @st.cache
 def load_data(selected_ticker):
     
     init_scraper = CmcScraper(selected_ticker)
     df = init_scraper.get_dataframe()
+    #min_date = pd.to_datetime(min(df['Date']))
+    #max_date = pd.to_datetime(max(df['Date']))
+
 
     return df
 
@@ -85,6 +89,7 @@ else:
 	plot_raw_data()
 
 
+
 ###########################################################################################
 rev_data=data.reindex(index=data.index[::-1])
 
@@ -107,11 +112,6 @@ prediction_days=int(st.sidebar.number_input('Input range of days for prediction:
 Future_Steps=int(st.sidebar.number_input('Input how many days the application will predict:', min_value=0, max_value=365, value=1, step=1)) # predicting x days from based days
 
 if st.button("Predict"):
-    #with hc.HyLoader('LOADING...',hc.Loaders.,):
-     #   time.sleep(10)
-         
-         
-         
 
 ###########################################################################################
 
@@ -176,6 +176,8 @@ if st.button("Predict"):
 ##############################################################################################
 
 # TESTING OF DATA
+
+
     print("##Total time taken:" ,round((EndTime-StartTime)/60),"Minutes ##")
 
 #make predictions on testing data
@@ -188,6 +190,8 @@ if st.button("Predict"):
     original=Scaled_data.inverse_transform(y_test)
 
 
+
+
 #generate predictions on full data
     TrainPredictions=Scaled_data.inverse_transform(model.predict(X_train))
     TestPredictions=Scaled_data.inverse_transform(model.predict(X_test))
@@ -196,10 +200,12 @@ if st.button("Predict"):
     Full_Orig_Data=closed_prices_data[Steps:]
 
 
+
+
     P_Data = pd.Series(predicted_Price.ravel('F'))#DataFrame(predicted_Price)
     
     rev_predictions=P_Data.reindex(index=P_Data.index[::-1])
-    #rev_predictions.loc[:, 'values'] =  rev_predictions['values'].map('{:.2f}'.format)
+
 
 # Visualising the results
     plt.title('### Accuracy of the predictions:'+ str(100 - (100*(abs(original-predicted_Price)/original)).mean().round(2))+'% ###')
@@ -212,6 +218,10 @@ if st.button("Predict"):
 #############################################################################################
 
 # PREDICT NEXT DAY
+    for i in range(prediction_days,NumRows,1):
+
+        X_days=rev_data[i-prediction_days:]
+        
     Last_X_Days_Prices=closed_prices_data[-prediction_days:]
  
 # Reshaping the data to (-1,1 )because its a single entry
@@ -234,25 +244,24 @@ if st.button("Predict"):
 # Generating the prices in original scale
     NextXDaysPrice = Scaled_data.inverse_transform(NextXDaysPrice)
 
+    P_Mul_Data = pd.DataFrame(NextXDaysPrice)
+    #print(P_Mul_Data)
 
-
-    P_Mul_Data = pd.DataFrame(NextXDaysPrice,columns=['values'])
-    P_Mul_Data.loc[:, 'values'] =  P_Mul_Data['values'].map('{:.2f}'.format)
-    
-    
     print(rev_predictions)
 ####################################################################################################################
 
-    st.subheader('Forecast plot data')
+    
+    st.subheader(f'Plot data using {prediction_days} days from historical data')
+#st.write(.head())
+    st.write(X_days.head(prediction_days))
 
-    st.write(rev_predictions.head(5))
-
-    st.subheader(f'Forecast plot using {prediction_days} days from historical data')
 
     fig1 = go.Figure()
-    fig1.add_trace(go.Scatter(y=Full_Data_Predictions, x=data['Date']))
+    fig1.add_trace(go.Scatter(y=X_days['Close'], x=X_days['Date']))
     fig1.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
     st.plotly_chart(fig1)
+
+
 
 
     st.subheader("Forecast components")
@@ -260,17 +269,27 @@ if st.button("Predict"):
     st.subheader(f'Predicted values for {Future_Steps} days')
     st.write(P_Mul_Data.head())
 
+    st.line_chart(P_Mul_Data)
 
     data['month'] = data['Date'].apply(lambda x: x.month)
     data['year'] = data['Date'].apply(lambda x: x.year)
     data['day'] = data['Date'].apply(lambda x: x.day)
-    
 
 
     month=pd.DataFrame(data.groupby('month'))
 
+#monthly=month['Market Cap']
 
     st.subheader('Monthly data')
+#st.write(month.head(5))
+
+#fig2 = go.Figure()
+#fig2.add_trace(go.Scatter(y=month['Close'], x=data['Date']))
+#fig2.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
+#st.plotly_chart(fig2)
+
+
+#st.line_chart(month)
 
 
     monthly=data.groupby('month').agg('mean')
@@ -289,35 +308,27 @@ if st.button("Predict"):
     plt.xlabel('Days')
     plt.legend(loc='upper right')
     
-    
-    st.line_chart(monthly)
-    st.subheader('Yearly data')
-    st.line_chart(yearly)
-    st.subheader('Daily data')
-    st.line_chart(daily)
+    #st.line_chart(monthly)
+    #st.subheader('Yearly data')
+    #st.line_chart(yearly)
+    #st.subheader('Daily data')
+    #st.line_chart(daily)
+
 
 
 #################################################################################
 ### trends seasonality etc
-    data.set_index('Date', inplace=True)
+data.set_index('Date', inplace=True)
 
-    analysis = data[['Close']].copy()
-
-
-    decompose_result_mult = seasonal_decompose(analysis, model="multiplicative", freq=365)
-
-    trend = decompose_result_mult.trend
-    seasonal = decompose_result_mult.seasonal
-    residual = decompose_result_mult.resid
-    decompose_result_mult.plot();
+analysis = data[['Close']].copy()
 
 
-    T_Data = pd.DataFrame(trend)
+decompose_result_mult = seasonal_decompose(analysis, model="additive", period=1)
 
+trend = decompose_result_mult.trend
+#seasonal = decompose_result_mult.seasonal
+#residual = decompose_result_mult.resid
+#decompose_result_mult.plot();
 
-    rev_trend=T_Data.reindex(index=T_Data.index[::-1])
-
-    print(rev_trend)
-    st.subheader('Trend')
-    st.line_chart(rev_trend)
+st.line_chart(trend)
 #st.line_chart(seasonal)
