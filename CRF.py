@@ -324,7 +324,7 @@ analysis = data[['Close']].copy()
 
 
 #decompose_result_mult = seasonal_decompose(analysis, model="additive", period=1)
-trend = decompose_result_mult.trend
+#trend = decompose_result_mult.trend
 #seasonal = decompose_result_mult.seasonal
 #residual = decompose_result_mult.resid
 #decompose_result_mult.plot();
