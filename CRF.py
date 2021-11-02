@@ -323,8 +323,7 @@ data.set_index('Date', inplace=True)
 analysis = data[['Close']].copy()
 
 
-decompose_result_mult = seasonal_decompose(analysis, model="additive", period=1)
-
+#decompose_result_mult = seasonal_decompose(analysis, model="additive", period=1)
 trend = decompose_result_mult.trend
 #seasonal = decompose_result_mult.seasonal
 #residual = decompose_result_mult.resid
