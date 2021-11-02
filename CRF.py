@@ -5,6 +5,7 @@ import pandas as pd
 import streamlit as st
 import matplotlib.pyplot as plt
 import hydralit_components as hc
+import hydralit_components as hc
 
 
 from PIL import Image
@@ -12,7 +13,6 @@ from cryptocmd import CmcScraper
 from plotly import graph_objs as go
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
-from statsmodels.tsa.seasonal import seasonal_decompose
 from tensorflow.keras.layers import Dense, LSTM ,Dropout
 
 

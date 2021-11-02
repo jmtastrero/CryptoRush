@@ -5,7 +5,6 @@ pybase64
 matplotlib
 tensorflow-cpu==2.5.0
 cryptocmd
-statsmodels
 scikit-learn
 plotly
 hydralit
