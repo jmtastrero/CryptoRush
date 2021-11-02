@@ -3,7 +3,7 @@ numpy
 pandas
 pybase64
 matplotlib
-tensorflow-cpu
+tensorflow==1.15
 cryptocmd
 statsmodels
 scikit-learn
