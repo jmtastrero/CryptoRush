@@ -1,21 +1,21 @@
-import time
-import base64
-import numpy as np
-import pandas as pd
 import streamlit as st
+import numpy as np
 import matplotlib.pyplot as plt
-import hydralit_components as hc
-import hydralit_components as hc
+import pandas as pd
+#import altair as alt
+import base64
 
+from datetime import datetime
+#from forex_python.converter import CurrencyRates
+#from forex_python.bitcoin import BtcConverter
 
-from PIL import Image
 from cryptocmd import CmcScraper
-from plotly import graph_objs as go
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LSTM ,Dropout
-
-
+from plotly import graph_objs as go
+from PIL import Image
+# tf.keras.datasets
 
 
 main_bg = "bg3.png"
@@ -34,8 +34,17 @@ st.markdown(
 )
 
 
-selected_ticker = st.sidebar.selectbox("Choose type of Crypto (i.e. BTC, ETH, BNB, XRP)",options=["BTC", "ETH", "BNB", "XRP"] )
 
+image = Image.open('logo.png')
+st.image(image, width=500)
+
+
+
+st.title('CryptoRush')
+st.markdown('A Web Application that enables you to predict and forecast the future value of any cryptocurrency on a daily, weekly, and monthly basis.')
+
+
+selected_ticker = st.sidebar.selectbox("Choose type of Crypto (i.e. BTC, ETH, BNB, XRP)",options=["BTC", "ETH", "BNB", "XRP"] )
 
 # INITIALIZE SCRAPER
 @st.cache
@@ -59,6 +68,7 @@ scraper = CmcScraper(selected_ticker)
 
 
 data = scraper.get_dataframe()
+data_copy = scraper.get_dataframe()
 data['Date'] = pd.to_datetime(data['Date']).dt.date
 
 
@@ -224,6 +234,15 @@ if st.button("Predict"):
         
     Last_X_Days_Prices=closed_prices_data[-prediction_days:]
  
+#Days of predicted values
+    Dates = pd.DataFrame(pd.date_range(datetime.today(), periods=Future_Steps).tolist(), columns=['Date'])
+
+
+    Dates['Date'] = pd.to_datetime(Dates['Date']).dt.date
+   
+ 
+    
+ 
 # Reshaping the data to (-1,1 )because its a single entry
     Last_X_Days_Prices=Last_X_Days_Prices.reshape(-1, 1)
  
@@ -245,8 +264,9 @@ if st.button("Predict"):
     NextXDaysPrice = Scaled_data.inverse_transform(NextXDaysPrice)
 
     P_Mul_Data = pd.DataFrame(NextXDaysPrice)
+    P_Mul_Data.round(2)
     #print(P_Mul_Data)
-
+    
     print(rev_predictions)
 ####################################################################################################################
 
@@ -269,65 +289,78 @@ if st.button("Predict"):
     st.subheader(f'Predicted values for {Future_Steps} days')
     st.write(P_Mul_Data.head())
 
-    st.line_chart(P_Mul_Data)
+    fig6 = go.Figure()
+    fig6.add_trace(go.Scatter(y=P_Mul_Data.iloc[0], x=Dates['Date']))
+    fig6.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
+    st.plotly_chart(fig6)
 
-    data['month'] = data['Date'].apply(lambda x: x.month)
-    data['year'] = data['Date'].apply(lambda x: x.year)
-    data['day'] = data['Date'].apply(lambda x: x.day)
 
+    data_copy['month'] = data_copy['Date'].apply(lambda x: x.month)
+    data_copy['year'] = data_copy['Date'].apply(lambda x: x.year)
+    data_copy['day'] = data_copy['Date'].apply(lambda x: x.day)
+    data_copy['week'] = data_copy['Date'].apply(lambda x: x.week)
 
-    month=pd.DataFrame(data.groupby('month'))
+    #month=pd.DataFrame(data.groupby('month'))
 
 #monthly=month['Market Cap']
 
-    st.subheader('Monthly data')
-#st.write(month.head(5))
-
-#fig2 = go.Figure()
-#fig2.add_trace(go.Scatter(y=month['Close'], x=data['Date']))
-#fig2.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
-#st.plotly_chart(fig2)
-
-
-#st.line_chart(month)
-
-
-    monthly=data.groupby('month').agg('mean')
-    plt.title('Monthly')
-    plt.xlabel('Month')
-    plt.legend(loc='upper right')
-
-
-    yearly=data.groupby('year').agg('mean')
-    plt.title('Yearly')
-    plt.xlabel('Year')
-    plt.legend(loc='upper right')
-
-    daily=data.groupby('day').agg('mean')
-    plt.title('Daily')
-    plt.xlabel('Days')
-    plt.legend(loc='upper right')
     
-    #st.line_chart(monthly)
-    #st.subheader('Yearly data')
-    #st.line_chart(yearly)
-    #st.subheader('Daily data')
-    #st.line_chart(daily)
+
+    
+
+    monthly=data_copy.groupby('month').agg('mean')
+    monthly.reset_index(inplace=True)
+    monthly = monthly.rename(columns = {'index':'month'})
+
+
+    yearly=data_copy.groupby('year').agg('mean')
+    yearly.reset_index(inplace=True)
+    yearly = yearly.rename(columns = {'index':'year'})
+
+    daily=data_copy.groupby('day').agg('mean')
+    daily.reset_index(inplace=True)
+    daily = daily.rename(columns = {'index':'day'})
+    
+    weekly=data_copy.groupby('week').agg('mean')
+    weekly.reset_index(inplace=True)
+    weekly = weekly.rename(columns = {'index':'week'})
+    
+    
+    
+ 
+    fig4 = go.Figure()
+    fig4.add_trace(go.Scatter(y=daily['Close'], x=daily['day']))
+    fig4.layout.update(title_text='Daily Data', xaxis_rangeslider_visible=True)
+    st.plotly_chart(fig4)
+    
+    
+
+    fig5 = go.Figure()
+    fig5.add_trace(go.Scatter(y=weekly['Close'], x=weekly['week']))
+    fig5.layout.update(title_text='Weekly Data', xaxis_rangeslider_visible=True)
+    st.plotly_chart(fig5)
+    
+    
+    
+ 
+    fig2 = go.Figure()
+    fig2.add_trace(go.Scatter(y=monthly['Close'], x=monthly['month']))
+    fig2.layout.update(title_text='Monthly Data', xaxis_rangeslider_visible=True)
+    st.plotly_chart(fig2)
+    
+    
+    
+
+    fig3 = go.Figure()
+    fig3.add_trace(go.Scatter(y=yearly['Close'], x=yearly['year']))
+    fig3.layout.update(title_text='Yearly Data', xaxis_rangeslider_visible=True)
+    st.plotly_chart(fig3)
+    
+    
+   
+    
 
 
 
 #################################################################################
 ### trends seasonality etc
-data.set_index('Date', inplace=True)
-
-analysis = data[['Close']].copy()
-
-
-#decompose_result_mult = seasonal_decompose(analysis, model="additive", period=1)
-#trend = decompose_result_mult.trend
-#seasonal = decompose_result_mult.seasonal
-#residual = decompose_result_mult.resid
-#decompose_result_mult.plot();
-
-#st.line_chart(trend)
-#st.line_chart(seasonal)
