@@ -12,8 +12,8 @@ from plotly import graph_objs as go
 from PIL import Image
 
 
-main_bg = "bg.jpg"
-main_bg_ext = "jpg"
+main_bg = "bg3.png"
+main_bg_ext = "png"
 
 st.markdown(
     f"""
@@ -31,7 +31,6 @@ st.markdown(
 image = Image.open('logo.png')
 st.image(image, width=500)
 
-st.title('CryptoRush')
 st.markdown('A Web Application that enables you to predict and forecast the future value of any cryptocurrency on a daily, weekly, and monthly basis.')
 
 
