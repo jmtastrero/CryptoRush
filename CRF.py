@@ -28,8 +28,6 @@ st.markdown(
 
 
 
-image = Image.open('logo.png')
-st.image(image, width=500)
 
 st.markdown('A Web Application that enables you to predict and forecast the future value of any cryptocurrency on a daily, weekly, and monthly basis.')
 
