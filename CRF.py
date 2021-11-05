@@ -1,26 +1,19 @@
 import streamlit as st
 import numpy as np
-import matplotlib.pyplot as plt
 import pandas as pd
-#import altair as alt
 import base64
 
 from datetime import datetime
-#from forex_python.converter import CurrencyRates
-#from forex_python.bitcoin import BtcConverter
-
 from cryptocmd import CmcScraper
 from sklearn.preprocessing import MinMaxScaler
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, LSTM ,Dropout
+from tensorflow.keras.layers import Dense, LSTM 
 from plotly import graph_objs as go
 from PIL import Image
-# tf.keras.datasets
 
 
-main_bg = "bg3.png"
-main_bg_ext = "png"
-
+main_bg = "bg.jpg"
+main_bg_ext = "jpg"
 
 st.markdown(
     f"""
@@ -38,24 +31,19 @@ st.markdown(
 image = Image.open('logo.png')
 st.image(image, width=500)
 
-
-
 st.title('CryptoRush')
 st.markdown('A Web Application that enables you to predict and forecast the future value of any cryptocurrency on a daily, weekly, and monthly basis.')
 
 
-selected_ticker = st.sidebar.selectbox("Choose type of Crypto (i.e. BTC, ETH, BNB, XRP)",options=["BTC", "ETH", "BNB", "XRP"] )
 
+
+selected_ticker = st.sidebar.selectbox("Choose type of Crypto (i.e. BTC, ETH, BNB, XRP)",options=["BTC", "ETH", "BNB", "XRP"] )
 # INITIALIZE SCRAPER
 @st.cache
 def load_data(selected_ticker):
     
     init_scraper = CmcScraper(selected_ticker)
     df = init_scraper.get_dataframe()
-    #min_date = pd.to_datetime(min(df['Date']))
-    #max_date = pd.to_datetime(max(df['Date']))
-
-
     return df
 
 ### LOAD THE DATA
@@ -74,6 +62,7 @@ data['Date'] = pd.to_datetime(data['Date']).dt.date
 
 st.subheader(f'Historical data of {selected_ticker}') #display
 st.write(data.head(5)) # display data frame
+
 
 ####################################################################################################################
 
@@ -100,10 +89,73 @@ else:
 
 
 
+
+data_copy['month'] = data_copy['Date'].apply(lambda x: x.month)
+data_copy['year'] = data_copy['Date'].apply(lambda x: x.year)
+data_copy['day'] = data_copy['Date'].apply(lambda x: x.day)
+data_copy['week'] = data_copy['Date'].apply(lambda x: x.week)
+
+
+monthly=data_copy.groupby('month').agg('mean')
+monthly.reset_index(inplace=True)
+monthly = monthly.rename(columns = {'index':'month'})
+
+
+yearly=data_copy.groupby('year').agg('mean')
+yearly.reset_index(inplace=True)
+yearly = yearly.rename(columns = {'index':'year'})
+
+daily=data_copy.groupby('day').agg('mean')
+daily.reset_index(inplace=True)
+daily = daily.rename(columns = {'index':'day'})
+    
+weekly=data_copy.groupby('week').agg('mean')
+weekly.reset_index(inplace=True)
+weekly = weekly.rename(columns = {'index':'week'})
+    
+    
+
+    ######## Daily ######## 
+
+fig4 = go.Figure()
+fig4.add_trace(go.Scatter(y=daily['Close'], x=daily['day']))
+fig4.layout.update(title_text='Daily Data', xaxis_rangeslider_visible=True)
+st.plotly_chart(fig4)
+    
+  ######## Weekly ######## 
+  
+
+fig5 = go.Figure()
+fig5.add_trace(go.Scatter(y=weekly['Close'], x=weekly['week']))
+fig5.layout.update(title_text='Weekly Data', xaxis_rangeslider_visible=True)
+st.plotly_chart(fig5)
+    
+  ######## Monthly ######## 
+  
+ 
+fig2 = go.Figure()
+fig2.add_trace(go.Scatter(y=monthly['Close'], x=monthly['month']))
+fig2.layout.update(title_text='Monthly Data', xaxis_rangeslider_visible=True)
+st.plotly_chart(fig2)
+    
+    
+  ######## Yearly ######## 
+ 
+
+fig3 = go.Figure()
+fig3.add_trace(go.Scatter(y=yearly['Close'], x=yearly['year']))
+fig3.layout.update(title_text='Yearly Data', xaxis_rangeslider_visible=True)
+st.plotly_chart(fig3)
+    
+
+
+
+
+
 ###########################################################################################
 rev_data=data.reindex(index=data.index[::-1])
 
-#data['Date']=data.index ##### create date column
+
 closed_prices_data=rev_data[['Close']].values.reshape(-1, 1) ##### get closed prices from data
 
 Scale=MinMaxScaler()
@@ -118,7 +170,7 @@ X_samples=list()
 y_samples=list()
 
 NumRows=len(X)
-prediction_days=int(st.sidebar.number_input('Input range of days for prediction:', min_value=0, max_value=365, value=60, step=1)) #next day's prediction (based on the last how many days price)
+prediction_days=10 #range days for data
 Future_Steps=int(st.sidebar.number_input('Input how many days the application will predict:', min_value=0, max_value=365, value=1, step=1)) # predicting x days from based days
 
 if st.button("Predict"):
@@ -151,10 +203,9 @@ if st.button("Predict"):
     y_test=y_data[-test_record:]
 
 #define inputs for LSTM
-#SampleNum=1
     Steps=X_train.shape[1]
     Features=X_train.shape[2]
-#X_test=X_test.reshape(SampleNum,Steps,Features)
+
 
 
 ###################################################################################################
@@ -217,13 +268,6 @@ if st.button("Predict"):
     rev_predictions=P_Data.reindex(index=P_Data.index[::-1])
 
 
-# Visualising the results
-    plt.title('### Accuracy of the predictions:'+ str(100 - (100*(abs(original-predicted_Price)/original)).mean().round(2))+'% ###')
-
-    plt.plot(Full_Data_Predictions, color = 'blue', label = 'Predicted price')
-    plt.plot(Full_Orig_Data, color = 'lightblue', label = 'Original price')
-    plt.legend()
-    plt.show()
 
 #############################################################################################
 
@@ -241,7 +285,6 @@ if st.button("Predict"):
     Dates['Date'] = pd.to_datetime(Dates['Date']).dt.date
    
  
-    
  
 # Reshaping the data to (-1,1 )because its a single entry
     Last_X_Days_Prices=Last_X_Days_Prices.reshape(-1, 1)
@@ -272,7 +315,6 @@ if st.button("Predict"):
 
     
     st.subheader(f'Plot data using {prediction_days} days from historical data')
-#st.write(.head())
     st.write(X_days.head(prediction_days))
 
 
@@ -294,73 +336,9 @@ if st.button("Predict"):
     fig6.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
     st.plotly_chart(fig6)
 
-
-    data_copy['month'] = data_copy['Date'].apply(lambda x: x.month)
-    data_copy['year'] = data_copy['Date'].apply(lambda x: x.year)
-    data_copy['day'] = data_copy['Date'].apply(lambda x: x.day)
-    data_copy['week'] = data_copy['Date'].apply(lambda x: x.week)
-
-    #month=pd.DataFrame(data.groupby('month'))
-
-#monthly=month['Market Cap']
-
-    
-
-    
-
-    monthly=data_copy.groupby('month').agg('mean')
-    monthly.reset_index(inplace=True)
-    monthly = monthly.rename(columns = {'index':'month'})
-
-
-    yearly=data_copy.groupby('year').agg('mean')
-    yearly.reset_index(inplace=True)
-    yearly = yearly.rename(columns = {'index':'year'})
-
-    daily=data_copy.groupby('day').agg('mean')
-    daily.reset_index(inplace=True)
-    daily = daily.rename(columns = {'index':'day'})
-    
-    weekly=data_copy.groupby('week').agg('mean')
-    weekly.reset_index(inplace=True)
-    weekly = weekly.rename(columns = {'index':'week'})
-    
-    
-    
- 
-    fig4 = go.Figure()
-    fig4.add_trace(go.Scatter(y=daily['Close'], x=daily['day']))
-    fig4.layout.update(title_text='Daily Data', xaxis_rangeslider_visible=True)
-    st.plotly_chart(fig4)
-    
-    
-
-    fig5 = go.Figure()
-    fig5.add_trace(go.Scatter(y=weekly['Close'], x=weekly['week']))
-    fig5.layout.update(title_text='Weekly Data', xaxis_rangeslider_visible=True)
-    st.plotly_chart(fig5)
-    
-    
-    
- 
-    fig2 = go.Figure()
-    fig2.add_trace(go.Scatter(y=monthly['Close'], x=monthly['month']))
-    fig2.layout.update(title_text='Monthly Data', xaxis_rangeslider_visible=True)
-    st.plotly_chart(fig2)
-    
-    
-    
-
-    fig3 = go.Figure()
-    fig3.add_trace(go.Scatter(y=yearly['Close'], x=yearly['year']))
-    fig3.layout.update(title_text='Yearly Data', xaxis_rangeslider_visible=True)
-    st.plotly_chart(fig3)
-    
-    
    
     
 
 
 
 #################################################################################
-### trends seasonality etc
