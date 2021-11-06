@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import pandas as pd
 import base64
+import time
 
 from datetime import datetime
 from cryptocmd import CmcScraper
@@ -25,13 +26,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-
-
-
-st.markdown('A Web Application that enables you to predict and forecast the future value of any cryptocurrency on a daily, weekly, and monthly basis.')
-
-
 
 
 selected_ticker = st.sidebar.selectbox("Choose type of Crypto (i.e. BTC, ETH, BNB, XRP)",options=["BTC", "ETH", "BNB", "XRP"] )
@@ -68,14 +62,14 @@ def plot_raw_data():
 	fig = go.Figure()
 	fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name="Close"))
 	fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
-	st.plotly_chart(fig)
+	st.plotly_chart(fig, use_container_width=True)
 
 def plot_raw_data_log():
 	fig = go.Figure()
 	fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name="Close"))
 	fig.update_yaxes(type="log")
 	fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
-	st.plotly_chart(fig)
+	st.plotly_chart(fig, use_container_width=True)
 
 
 plot_log = st.checkbox("Plot log scale")
@@ -117,7 +111,7 @@ weekly = weekly.rename(columns = {'index':'week'})
 fig4 = go.Figure()
 fig4.add_trace(go.Scatter(y=daily['Close'], x=daily['day']))
 fig4.layout.update(title_text='Daily Data', xaxis_rangeslider_visible=True)
-st.plotly_chart(fig4)
+st.plotly_chart(fig4, use_container_width=True)
     
   ######## Weekly ######## 
   
@@ -125,7 +119,7 @@ st.plotly_chart(fig4)
 fig5 = go.Figure()
 fig5.add_trace(go.Scatter(y=weekly['Close'], x=weekly['week']))
 fig5.layout.update(title_text='Weekly Data', xaxis_rangeslider_visible=True)
-st.plotly_chart(fig5)
+st.plotly_chart(fig5, use_container_width=True)
     
   ######## Monthly ######## 
   
@@ -133,7 +127,7 @@ st.plotly_chart(fig5)
 fig2 = go.Figure()
 fig2.add_trace(go.Scatter(y=monthly['Close'], x=monthly['month']))
 fig2.layout.update(title_text='Monthly Data', xaxis_rangeslider_visible=True)
-st.plotly_chart(fig2)
+st.plotly_chart(fig2, use_container_width=True)
     
     
   ######## Yearly ######## 
@@ -142,7 +136,7 @@ st.plotly_chart(fig2)
 fig3 = go.Figure()
 fig3.add_trace(go.Scatter(y=yearly['Close'], x=yearly['year']))
 fig3.layout.update(title_text='Yearly Data', xaxis_rangeslider_visible=True)
-st.plotly_chart(fig3)
+st.plotly_chart(fig3, use_container_width=True)
     
 
 
@@ -172,6 +166,8 @@ Future_Steps=int(st.sidebar.number_input('Input how many days the application wi
 
 if st.button("Predict"):
 
+    with st.spinner('Wait for the algorithm to finish'):
+    
 ###########################################################################################
 
 # TRAINING OF DATA
@@ -318,7 +314,7 @@ if st.button("Predict"):
     fig1 = go.Figure()
     fig1.add_trace(go.Scatter(y=X_days['Close'], x=X_days['Date']))
     fig1.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
-    st.plotly_chart(fig1)
+    st.plotly_chart(fig1, use_container_width=True)
 
 
 
@@ -331,7 +327,7 @@ if st.button("Predict"):
     fig6 = go.Figure()
     fig6.add_trace(go.Scatter(y=P_Mul_Data.iloc[0], x=Dates['Date']))
     fig6.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
-    st.plotly_chart(fig6)
+    st.plotly_chart(fig6, use_container_width=True)
 
    
     
