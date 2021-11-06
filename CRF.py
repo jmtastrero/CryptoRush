@@ -320,7 +320,7 @@ if st.button("Predict"):
         fig1 = go.Figure()
         fig1.add_trace(go.Scatter(y=X_days['Close'], x=X_days['Date']))
         fig1.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
-        st.plotly_chart(fig1)
+        st.plotly_chart(fig1, use_container_width=True)
 
 
 
@@ -333,7 +333,7 @@ if st.button("Predict"):
         fig6 = go.Figure()
         fig6.add_trace(go.Scatter(y=P_Mul_Data.iloc[0], x=Dates['Date']))
         fig6.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
-        st.plotly_chart(fig6)
+        st.plotly_chart(fig6, use_container_width=True)
 
    
     
