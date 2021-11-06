@@ -35,7 +35,7 @@ menu_data = [
 ]
 
 
-over_theme = {'txc_inactive': '#FFFFFF','menu_background':'#00030f'}
+over_theme = {'txc_inactive': '#FFFFFF','menu_background':'#ffffff00'}
 menu_id = hc.nav_bar(menu_definition=menu_data,home_name='Home',override_theme=over_theme)
 if menu_id == 'Home':
         st.markdown("<h3 style='text-align:center;'>A Web Application that enables you to predict and forecast the future value of <br> any cryptocurrency on a daily, weekly, and monthly and yearly basis.</h3>", unsafe_allow_html=True)
