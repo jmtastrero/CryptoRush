@@ -42,9 +42,6 @@ if menu_id == 'Home':
         st.header("")
         st.header("")
         
-        
-        
-        
         st.subheader("CONVERSION")
         HtmlFile = open("converter.html", 'r', encoding='utf-8')
         source_code = HtmlFile.read() 
