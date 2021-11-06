@@ -167,7 +167,8 @@ Future_Steps=int(st.sidebar.number_input('Input how many days the application wi
 if st.button("Predict"):
 
     with st.spinner('Wait for the algorithm to finish'):
-    
+       
+        
 ###########################################################################################
 
 # TRAINING OF DATA
