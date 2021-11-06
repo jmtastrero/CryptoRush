@@ -165,170 +165,175 @@ prediction_days=10 #range days for data
 Future_Steps=int(st.sidebar.number_input('Input how many days the application will predict:', min_value=0, max_value=365, value=1, step=1)) # predicting x days from based days
 
 if st.button("Predict"):
-
+    
     with st.spinner('Wait for the algorithm to finish'):
        
-        
+       
 ###########################################################################################
 
 # TRAINING OF DATA
-    for i in range(prediction_days,NumRows-Future_Steps,1):
+        for i in range(prediction_days,NumRows-Future_Steps,1):
     
-        x_sample_data=X[i-prediction_days:i]
-        y_sample_data=X[i:i+Future_Steps]
-        X_samples.append(x_sample_data)
-        y_samples.append(y_sample_data)
+            x_sample_data=X[i-prediction_days:i]
+            y_sample_data=X[i:i+Future_Steps]
+            X_samples.append(x_sample_data)
+            y_samples.append(y_sample_data)
 
 #reshape input as 3D
-    X_data=np.array(X_samples)
-    X_data=X_data.reshape(X_data.shape[0],X_data.shape[1],1)
+        X_data=np.array(X_samples)
+        X_data=X_data.reshape(X_data.shape[0],X_data.shape[1],1)
 
 
 #y data is a single column only
-    y_data=np.array(y_samples)
+        y_data=np.array(y_samples)
 
 
 # num of testing data records
-    test_record=5
+        test_record=5
 #split data to train and test
-    X_train=X_data[:-test_record]
-    X_test=X_data[-test_record:]
-    y_train=y_data[:-test_record]
-    y_test=y_data[-test_record:]
+        X_train=X_data[:-test_record]
+        X_test=X_data[-test_record:]
+        y_train=y_data[:-test_record]
+        y_test=y_data[-test_record:]
 
 #define inputs for LSTM
-    Steps=X_train.shape[1]
-    Features=X_train.shape[2]
+        Steps=X_train.shape[1]
+        Features=X_train.shape[2]
 
 
 
 ###################################################################################################
 # LSTM MODEL
-    model = Sequential()
+        model = Sequential()
 
 #first hidden layer and LSTM layer
-    model.add(LSTM(units=50, activation='relu', input_shape=(Steps,Features),return_sequences=True))  
+        model.add(LSTM(units=50, activation='relu', input_shape=(Steps,Features),return_sequences=True))  
 
 #second layer
-    model.add(LSTM(units=25, activation='relu', input_shape=(Steps,Features),return_sequences=True))
+        model.add(LSTM(units=25, activation='relu', input_shape=(Steps,Features),return_sequences=True))
 
 #third layer
-    model.add(LSTM(units=25, activation='relu',return_sequences=False))
+        model.add(LSTM(units=25, activation='relu',return_sequences=False))
 
 #Output layer
-    model.add(Dense(units=Future_Steps))# change to 5 later for multi deep learning
+        model.add(Dense(units=Future_Steps))# change to 5 later for multi deep learning
 
 #complile RNN
-    model.compile(optimizer='adam', loss='mean_squared_error')
+        model.compile(optimizer='adam', loss='mean_squared_error')
 
-    import time
+
 # measure time taken for model to train
-    StartTime=time.time()
+        StartTime=time.time()
 
 #fit the RNN to Training set
-    model.fit(X_train, y_train, epochs=25, batch_size=32)
-    EndTime=time.time()
-##############################################################################################
+        model.fit(X_train, y_train, epochs=25, batch_size=32)
+        EndTime=time.time()
+    
+    
+        st.success('Done!')
+    
+    
+##################################################################
 
 # TESTING OF DATA
 
 
-    print("##Total time taken:" ,round((EndTime-StartTime)/60),"Minutes ##")
+        print("##Total time taken:" ,round((EndTime-StartTime)/60),"Minutes ##")
 
 #make predictions on testing data
-    predicted_Price=model.predict(X_test)
-    predicted_Price=Scaled_data.inverse_transform(predicted_Price)
+        predicted_Price=model.predict(X_test)
+        predicted_Price=Scaled_data.inverse_transform(predicted_Price)
 
 
 #get the original price for testing data
-    original=y_test
-    original=Scaled_data.inverse_transform(y_test)
+        original=y_test
+        original=Scaled_data.inverse_transform(y_test)
 
 
 
 
 #generate predictions on full data
-    TrainPredictions=Scaled_data.inverse_transform(model.predict(X_train))
-    TestPredictions=Scaled_data.inverse_transform(model.predict(X_test))
+        TrainPredictions=Scaled_data.inverse_transform(model.predict(X_train))
+        TestPredictions=Scaled_data.inverse_transform(model.predict(X_test))
 
-    Full_Data_Predictions=np.append(TrainPredictions,TestPredictions)
-    Full_Orig_Data=closed_prices_data[Steps:]
-
-
+        Full_Data_Predictions=np.append(TrainPredictions,TestPredictions)
+        Full_Orig_Data=closed_prices_data[Steps:]
 
 
-    P_Data = pd.Series(predicted_Price.ravel('F'))#DataFrame(predicted_Price)
-    
-    rev_predictions=P_Data.reindex(index=P_Data.index[::-1])
+
+
+        P_Data = pd.Series(predicted_Price.ravel('F'))#DataFrame(predicted_Price)
+        
+        rev_predictions=P_Data.reindex(index=P_Data.index[::-1])
 
 
 
 #############################################################################################
 
 # PREDICT NEXT DAY
-    for i in range(prediction_days,NumRows,1):
-
-        X_days=rev_data[i-prediction_days:]
+        for i in range(prediction_days,NumRows,1):
+            
+            X_days=rev_data[i-prediction_days:]
         
-    Last_X_Days_Prices=closed_prices_data[-prediction_days:]
+        Last_X_Days_Prices=closed_prices_data[-prediction_days:]
  
 #Days of predicted values
-    Dates = pd.DataFrame(pd.date_range(datetime.today(), periods=Future_Steps).tolist(), columns=['Date'])
+        Dates = pd.DataFrame(pd.date_range(datetime.today(), periods=Future_Steps).tolist(), columns=['Date'])
 
 
-    Dates['Date'] = pd.to_datetime(Dates['Date']).dt.date
+        Dates['Date'] = pd.to_datetime(Dates['Date']).dt.date
    
  
  
 # Reshaping the data to (-1,1 )because its a single entry
-    Last_X_Days_Prices=Last_X_Days_Prices.reshape(-1, 1)
+        Last_X_Days_Prices=Last_X_Days_Prices.reshape(-1, 1)
  
 # Scaling the data on the same level on which model was trained
-    X_test=Scaled_data.transform(Last_X_Days_Prices)
+        X_test=Scaled_data.transform(Last_X_Days_Prices)
  
-    NumberofSamples=1
-    TimeSteps=X_test.shape[0]
-    NumberofFeatures=X_test.shape[1]
+        NumberofSamples=1
+        TimeSteps=X_test.shape[0]
+        NumberofFeatures=X_test.shape[1]
 
 # Reshaping the data as 3D input
-    X_test=X_test.reshape(NumberofSamples,TimeSteps,NumberofFeatures)
+        X_test=X_test.reshape(NumberofSamples,TimeSteps,NumberofFeatures)
  
 # Generating the predictions for next X days
-    NextXDaysPrice = model.predict(X_test)
+        NextXDaysPrice = model.predict(X_test)
  
 
 # Generating the prices in original scale
-    NextXDaysPrice = Scaled_data.inverse_transform(NextXDaysPrice)
-
-    P_Mul_Data = pd.DataFrame(NextXDaysPrice)
-    P_Mul_Data.round(2)
-    #print(P_Mul_Data)
+        NextXDaysPrice = Scaled_data.inverse_transform(NextXDaysPrice)
+        NextXDaysPrice.round(2)
+        P_Mul_Data = pd.DataFrame(NextXDaysPrice)
+       
+        #print(P_Mul_Data)
     
-    print(rev_predictions)
+        print(rev_predictions)
 ####################################################################################################################
 
     
-    st.subheader(f'Plot data using {prediction_days} days from historical data')
-    st.write(X_days.head(prediction_days))
+        st.subheader(f'Plot data using {prediction_days} days from historical data')
+        st.write(X_days.head(prediction_days))
 
 
-    fig1 = go.Figure()
-    fig1.add_trace(go.Scatter(y=X_days['Close'], x=X_days['Date']))
-    fig1.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
-    st.plotly_chart(fig1, use_container_width=True)
+        fig1 = go.Figure()
+        fig1.add_trace(go.Scatter(y=X_days['Close'], x=X_days['Date']))
+        fig1.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
+        st.plotly_chart(fig1)
 
 
 
 
-    st.subheader("Forecast components")
+        st.subheader("Forecast components")
+        
+        st.subheader(f'Predicted values for {Future_Steps} days')
+        st.write(P_Mul_Data.head())
 
-    st.subheader(f'Predicted values for {Future_Steps} days')
-    st.write(P_Mul_Data.head())
-
-    fig6 = go.Figure()
-    fig6.add_trace(go.Scatter(y=P_Mul_Data.iloc[0], x=Dates['Date']))
-    fig6.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
-    st.plotly_chart(fig6, use_container_width=True)
+        fig6 = go.Figure()
+        fig6.add_trace(go.Scatter(y=P_Mul_Data.iloc[0], x=Dates['Date']))
+        fig6.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
+        st.plotly_chart(fig6)
 
    
     
