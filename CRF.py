@@ -111,7 +111,7 @@ weekly = weekly.rename(columns = {'index':'week'})
 fig4 = go.Figure()
 fig4.add_trace(go.Scatter(y=daily['Close'], x=daily['day']))
 fig4.layout.update(title_text='Daily Data', xaxis_rangeslider_visible=True, xaxis_title="Days",yaxis_title="Daily Data Prices")
-st.plotly_chart(fig4)
+st.plotly_chart(fig4, use_container_width=True)
     
   ######## Weekly ######## 
   
@@ -119,7 +119,7 @@ st.plotly_chart(fig4)
 fig5 = go.Figure()
 fig5.add_trace(go.Scatter(y=weekly['Close'], x=weekly['week']))
 fig5.layout.update(title_text='Weekly Data', xaxis_rangeslider_visible=True, xaxis_title="Weeks",yaxis_title="Weekly Data Prices")
-st.plotly_chart(fig5)
+st.plotly_chart(fig5, use_container_width=True)
     
   ######## Monthly ######## 
   
@@ -127,7 +127,7 @@ st.plotly_chart(fig5)
 fig2 = go.Figure()
 fig2.add_trace(go.Scatter(y=monthly['Close'], x=monthly['month']))
 fig2.layout.update(title_text='Monthly Data', xaxis_rangeslider_visible=True, xaxis_title="Months",yaxis_title="Monthly Data Prices")
-st.plotly_chart(fig2)
+st.plotly_chart(fig2, use_container_width=True)
     
     
   ######## Yearly ######## 
@@ -136,7 +136,7 @@ st.plotly_chart(fig2)
 fig3 = go.Figure()
 fig3.add_trace(go.Scatter(y=yearly['Close'], x=yearly['year']))
 fig3.layout.update(title_text='Yearly Data', xaxis_rangeslider_visible=True, xaxis_title="Years",yaxis_title="Yearly Data Prices")
-st.plotly_chart(fig3)
+st.plotly_chart(fig3, use_container_width=True)
     
     
 
