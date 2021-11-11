@@ -63,7 +63,7 @@ if menu_id == 'Home':
         print(source_code)
         components.html(source_code,height=210, scrolling=True)
 else:
-    exec(open('CRF.py').read())
+    exec(open('Prediction.py').read())
 
 
 
