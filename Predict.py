@@ -61,14 +61,14 @@ st.write(data.head(5)) # display data frame
 def plot_raw_data():
 	fig = go.Figure()
 	fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name="Close"))
-	fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
+	fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True, xaxis_title="Dates",yaxis_title="Closed Data Prices")
 	st.plotly_chart(fig, use_container_width=True)
 
 def plot_raw_data_log():
 	fig = go.Figure()
 	fig.add_trace(go.Scatter(x=data['Date'], y=data['Close'], name="Close"))
 	fig.update_yaxes(type="log")
-	fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
+	fig.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True, xaxis_title="Dates",yaxis_title="Closed Data Prices")
 	st.plotly_chart(fig, use_container_width=True)
 
 
@@ -139,9 +139,6 @@ fig3.layout.update(title_text='Yearly Data', xaxis_rangeslider_visible=True, xax
 st.plotly_chart(fig3, use_container_width=True)
     
     
-
-
-
 
 
 ###########################################################################################
@@ -232,6 +229,8 @@ if st.button("Predict"):
     
     
         st.success('Done!')
+        
+        print("##Total time taken:" ,round((EndTime-StartTime)/60),"Minutes ##")
     
     
 ##################################################################
@@ -240,33 +239,6 @@ if st.button("Predict"):
 
 
         print("##Total time taken:" ,round((EndTime-StartTime)/60),"Minutes ##")
-
-#make predictions on testing data
-        predicted_Price=model.predict(X_test)
-        predicted_Price=Scaled_data.inverse_transform(predicted_Price)
-
-
-#get the original price for testing data
-        original=y_test
-        original=Scaled_data.inverse_transform(y_test)
-
-
-
-
-#generate predictions on full data
-        TrainPredictions=Scaled_data.inverse_transform(model.predict(X_train))
-        TestPredictions=Scaled_data.inverse_transform(model.predict(X_test))
-
-        Full_Data_Predictions=np.append(TrainPredictions,TestPredictions)
-        Full_Orig_Data=closed_prices_data[Steps:]
-
-
-
-
-        P_Data = pd.Series(predicted_Price.ravel('F'))#DataFrame(predicted_Price)
-        
-        rev_predictions=P_Data.reindex(index=P_Data.index[::-1])
-
 
 
 #############################################################################################
@@ -281,10 +253,8 @@ if st.button("Predict"):
 #Days of predicted values
         Dates = pd.DataFrame(pd.date_range(datetime.today(), periods=Future_Steps).tolist(), columns=['Date'])
 
-
         Dates['Date'] = pd.to_datetime(Dates['Date']).dt.date
    
- 
  
 # Reshaping the data to (-1,1 )because its a single entry
         Last_X_Days_Prices=Last_X_Days_Prices.reshape(-1, 1)
@@ -300,17 +270,13 @@ if st.button("Predict"):
         X_test=X_test.reshape(NumberofSamples,TimeSteps,NumberofFeatures)
  
 # Generating the predictions for next X days
-        NextXDaysPrice = model.predict(X_test)
+        Next_XDays_Price = model.predict(X_test)
  
 
 # Generating the prices in original scale
-        NextXDaysPrice = Scaled_data.inverse_transform(NextXDaysPrice)
-        NextXDaysPrice.round(2)
-        P_Mul_Data = pd.DataFrame(NextXDaysPrice)
-       
-        #print(P_Mul_Data)
-    
-        print(rev_predictions)
+        Next_XDays_Price = Scaled_data.inverse_transform(Next_XDays_Price)
+        Predicted_Multiple_Data = pd.DataFrame(Next_XDays_Price)
+     
 ####################################################################################################################
 
     
@@ -320,7 +286,7 @@ if st.button("Predict"):
 
         fig1 = go.Figure()
         fig1.add_trace(go.Scatter(y=X_days['Close'], x=X_days['Date']))
-        fig1.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
+        fig1.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True, xaxis_title="Dates",yaxis_title="Prices")
         st.plotly_chart(fig1, use_container_width=True)
 
 
@@ -329,16 +295,9 @@ if st.button("Predict"):
         st.subheader("Forecast components")
         
         st.subheader(f'Predicted values for {Future_Steps} days')
-        st.write(P_Mul_Data.head())
+        st.write(Predicted_Multiple_Data.head())
 
         fig6 = go.Figure()
-        fig6.add_trace(go.Scatter(y=P_Mul_Data.iloc[0], x=Dates['Date']))
-        fig6.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True)
+        fig6.add_trace(go.Scatter(y=Predicted_Multiple_Data.iloc[0], x=Dates['Date']))
+        fig6.layout.update(title_text='Time Series data with Rangeslider', xaxis_rangeslider_visible=True, xaxis_title="Dates",yaxis_title="Predicted Prices")
         st.plotly_chart(fig6, use_container_width=True)
-
-   
-    
-
-
-
-#################################################################################
